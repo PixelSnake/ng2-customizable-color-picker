@@ -2,17 +2,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 
-import { AppComponent } from './app.component';
+import { Ng2ColorPickerComponent } from './ng2-color-picker.component';
+import { AppRootComponent } from './app-root.component'
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppRootComponent,
+    Ng2ColorPickerComponent
   ],
   imports: [
     BrowserModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppRootComponent]
 })
 export class AppModule { }

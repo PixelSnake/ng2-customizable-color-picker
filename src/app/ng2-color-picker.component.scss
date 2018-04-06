@@ -1,0 +1,18 @@
+.pickerContainer {
+  width: 300px;
+  padding: 1rem;
+
+  .wheel, .triangle {
+    position: absolute;
+    z-index: 0;
+
+    svg {
+      display: block;
+    }
+  }
+
+  .wheel {
+    z-index: 10;
+    border-radius: 100%;
+  }
+}
