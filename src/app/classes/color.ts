@@ -7,9 +7,9 @@ export interface RGBColor {
 }
 
 export class Color {
-  h: number
-  s: number
-  v: number
+  private _h: number
+  private _s: number
+  private _v: number
 
   static fromRGB(r: number, g: number, b: number): Color {
     return null
@@ -29,4 +29,11 @@ export class Color {
     const rgb = hsv2rgb(this.h, this.s, this.v)
     return '#' + rgb.map(v => v.toString(16).padStart(2, '0')).join('')
   }
+
+  get h(): number { return this._h }
+  get s(): number { return this._s }
+  get v(): number { return this._v }
+  set h(val: number) { this._h = val % 360 }
+  set s(val: number) { this._s = Math.max(Math.min(val, 100), 0) }
+  set v(val: number) { this._v = Math.max(Math.min(val, 100), 0) }
 }
