@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
+import { Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core'
 import { Color } from './classes/color'
 import { Vector } from './classes/vector'
 
@@ -8,7 +8,12 @@ import { Vector } from './classes/vector'
   styleUrls: ['./ng2-color-picker.component.scss']
 })
 export class Ng2ColorPickerComponent implements OnInit {
+
+  @Input() unselectedCaretSize = 3
+  @Input() selectedCaretSize = 6
+
   @ViewChild('wheel') wheel: ElementRef
+
   color: Color
   enable = false
   dragging = {

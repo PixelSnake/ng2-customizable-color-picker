@@ -1,6 +1,19 @@
 <div class="pickerContainer">
   <div class="triangle" [style.transform]="transform">
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="-10 -10 220 220">
+      <style>
+        .caret {
+          rx: 3;
+          ry: 3;
+          transition: rx .15s, ry .15s;
+          box-shadow: 0 0 4px 0 black;
+        }
+        .caret.selected {
+          rx: 6;
+          ry: 6;
+        }
+      </style>
+
       <clipPath id="mask">
         <polygon points="60,30 180,100 60,170" fill="url(#g1)"></polygon>
       </clipPath>
@@ -18,11 +31,12 @@
       <ellipse fill="url(#g2)" clip-path="url(#mask)" ry="120" rx="120" cy="170" cx="60"></ellipse>
       <ellipse fill="url(#g1)" clip-path="url(#mask)" ry="120" rx="120" cy="100" cx="180"></ellipse>
       <ellipse fill="url(#g3)" clip-path="url(#mask)" ry="120" rx="120" cy="30" cx="60"></ellipse>
-      <ellipse [attr.cx]="pointX" [attr.cy]="pointY" fill="white" rx="5" ry="5" stroke="black"></ellipse>
+
+      <ellipse class="caret" [class.selected]="dragging.triangle" [attr.cx]="pointX" [attr.cy]="pointY" [attr.fill]="color.toString()" stroke="black"></ellipse>
     </svg>
   </div>
   <div #wheel class="wheel">
-    <div class="mouseListener" [class.maximized]="dragging.any" (mousedown)="enableDrag($event)" (mouseup)="disableDrag()" (mousemove)="drag($event)"></div>
+    <div class="mouseListener svgAbsolute" [class.maximized]="dragging.any" (mousedown)="enableDrag($event)" (mouseup)="disableDrag()" (mousemove)="drag($event)"></div>
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="-10 -10 220 220">
       <ellipse *ngFor="let p of debugPoints" [attr.cx]="p.x" [attr.cy]="p.y" fill="white" rx="5" ry="5" stroke="black"></ellipse>
       <defs>
