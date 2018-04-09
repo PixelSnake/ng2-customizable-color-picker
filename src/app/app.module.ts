@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 
 import { Ng2ColorPickerComponent } from './ng2-color-picker.component';
 import { AppRootComponent } from './app-root.component'
+import { FormsModule } from '@angular/forms'
 
 
 @NgModule({
@@ -12,7 +13,8 @@ import { AppRootComponent } from './app-root.component'
     Ng2ColorPickerComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppRootComponent]

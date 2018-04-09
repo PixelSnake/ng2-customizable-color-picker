@@ -1,18 +1,21 @@
 import { Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core'
 import { Color } from './classes/color'
 import { Vector } from './classes/vector'
+import { ControlValueAccessor } from '@angular/forms'
 
 @Component({
   selector: 'cp-ng2-color-picker',
   templateUrl: './ng2-color-picker.component.html',
   styleUrls: ['./ng2-color-picker.component.scss']
 })
-export class Ng2ColorPickerComponent implements OnInit {
+export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
 
   @Input() unselectedCaretSize = 3
   @Input() selectedCaretSize = 6
 
   @ViewChild('wheel') wheel: ElementRef
+
+  disabled = false
 
   color: Color
   enable = false
@@ -24,16 +27,8 @@ export class Ng2ColorPickerComponent implements OnInit {
     }
   }
 
-  _debugPoints = {}
-  get debugPoints(): Vector[] {
-    const ret = []
-    for (const key in this._debugPoints) {
-      if (this._debugPoints.hasOwnProperty(key)) {
-        ret.push(this._debugPoints[key])
-      }
-    }
-    return ret
-  }
+  onChange = (val: Color) => { }
+  onTouch = () => {}
 
   constructor() {
 
@@ -80,12 +75,14 @@ export class Ng2ColorPickerComponent implements OnInit {
 
     const distToCenter = Math.sqrt(dx ** 2 + dy ** 2)
 
-    const triCorner1 = new Vector(110, 0).rotateDeg(this.color.h - 90).plus(center)
-    const triCorner2 = new Vector(110, 0).rotateDeg(this.color.h - 90 - 120).plus(center)
-    const triCorner3 = new Vector(110, 0).rotateDeg(this.color.h - 90 + 120).plus(center)
+    const widthFactor = 110 / 300
+    const vecLen = width * widthFactor
+    const triCorner1 = new Vector(vecLen, 0).rotateDeg(this.color.h - 90).plus(center)
+    const triCorner2 = new Vector(vecLen, 0).rotateDeg(this.color.h - 90 - 120).plus(center)
+    const triCorner3 = new Vector(vecLen, 0).rotateDeg(this.color.h - 90 + 120).plus(center)
     const isInTriangle = this.ptInTriangle(mouse, triCorner1, triCorner2, triCorner3)
 
-    if (distToCenter > 150 && !this.dragging.any) {
+    if (distToCenter > width / 2 && !this.dragging.any) {
       // outside, do nothing
     } else if (isInTriangle && !this.dragging.circle || this.dragging.triangle) {
       this.dragTriangle(e, center, mouse, isInTriangle, [triCorner1, triCorner2, triCorner3])
@@ -94,6 +91,8 @@ export class Ng2ColorPickerComponent implements OnInit {
     }
 
     this.enable = false
+    this.onChange(this.color)
+    this.onTouch()
   }
 
   private ptInTriangle(p: Vector, p0: Vector, p1: Vector, p2: Vector) {
@@ -128,16 +127,14 @@ export class Ng2ColorPickerComponent implements OnInit {
       mouse = this.getClosestPointOnTriangle(mouse, triangle[0], triangle[1], triangle[2])
     }
 
-    const saturationOne = new Vector(110, 0).rotateDeg(this.color.h - 90)
-    const saturationZero = saturationOne.plus(new Vector(110, 0).rotateDeg(this.color.h + 90).times(1.5))
-    const saturationLine = [saturationOne.plus(center), saturationZero.plus(center)]
-    const saturation = this.getClosestPointOnLine(mouse, saturationLine[0], saturationLine[1]).distTo(saturationLine[1]) / 165
+    const saturationOne = triangle[0]
+    const saturationZero = triangle[1].plus(triangle[2].minus(triangle[1]).times(.5))
+    const saturation = this.getClosestPointOnLine(mouse, saturationOne, saturationZero).distTo(saturationZero) / saturationOne.distTo(saturationZero)
     this.color.s = saturation * 100
 
-    const lightnessOne = new Vector(110, 0).rotateDeg(this.color.h - 90 - 120)
-    const lightnessZero = new Vector(110, 0).rotateDeg(this.color.h - 90 + 120)
-    const lightnessLine = [lightnessOne.plus(center), lightnessZero.plus(center)]
-    const lightness = this.getClosestPointOnLine(mouse, lightnessLine[0], lightnessLine[1]).distTo(lightnessLine[1]) / lightnessLine[0].distTo(lightnessLine[1])
+    const lightnessOne = triangle[1]
+    const lightnessZero = triangle[2]
+    const lightness = this.getClosestPointOnLine(mouse, lightnessOne, lightnessZero).distTo(lightnessZero) / lightnessOne.distTo(lightnessZero)
     this.color.l = lightness * 100
   }
 
@@ -189,5 +186,29 @@ export class Ng2ColorPickerComponent implements OnInit {
 
   get pointX() {
     return 60 + this.color.s * 1.2
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouch = fn
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled
+  }
+
+  writeValue(obj: any): void {
+    console.log(typeof obj)
+    switch (typeof obj) {
+      case 'string':
+        break
+
+      case 'object':
+        console.log('color')
+        break
+    }
   }
 }

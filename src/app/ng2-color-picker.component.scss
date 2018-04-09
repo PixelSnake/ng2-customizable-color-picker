@@ -1,11 +1,9 @@
 .pickerContainer {
   position: relative;
   width: 300px;
-  padding: 1rem;
 
   .wheel, .triangle {
-    position: absolute;
-    z-index: 0;
+    width: 100%;
 
     svg {
       display: block;
@@ -15,6 +13,13 @@
   .wheel {
     z-index: 10;
     border-radius: 100%;
+  }
+
+  .triangle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
   }
 }
 
