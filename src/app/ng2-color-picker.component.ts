@@ -19,12 +19,23 @@ export class Ng2ColorPickerComponent implements OnInit {
     }
   }
 
+  _debugPoints = {}
+  get debugPoints(): Vector[] {
+    const ret = []
+    for (const key in this._debugPoints) {
+      if (this._debugPoints.hasOwnProperty(key)) {
+        ret.push(this._debugPoints[key])
+      }
+    }
+    return ret
+  }
+
   constructor() {
 
   }
 
   ngOnInit() {
-    this.color = Color.fromHSV(0, 100, 100)
+    this.color = Color.fromHSL(90, 100, 50)
   }
 
   enableDrag(e: MouseEvent) {
@@ -51,7 +62,6 @@ export class Ng2ColorPickerComponent implements OnInit {
     if (this.dragging.any) {
       // mouselistener is maximized, we need to add an offset to the positions
       const rect = this.wheel.nativeElement.getBoundingClientRect()
-      console.log(rect)
       mouse.x -= rect.x
       mouse.y -= rect.y
     }
@@ -63,7 +73,7 @@ export class Ng2ColorPickerComponent implements OnInit {
     const dx = mouse.x - center.x
     const dy = mouse.y - center.y
 
-    const distToCenter = Math.sqrt(dx * dx + dy * dy)
+    const distToCenter = Math.sqrt(dx ** 2 + dy ** 2)
 
     const triCorner1 = new Vector(110, 0).rotateDeg(this.color.h - 90).plus(center)
     const triCorner2 = new Vector(110, 0).rotateDeg(this.color.h - 90 - 120).plus(center)
@@ -73,7 +83,7 @@ export class Ng2ColorPickerComponent implements OnInit {
     if (distToCenter > 150 && !this.dragging.any) {
       // outside, do nothing
     } else if (isInTriangle && !this.dragging.circle || this.dragging.triangle) {
-      this.dragTriangle(e, center, mouse)
+      this.dragTriangle(e, center, mouse, isInTriangle, [triCorner1, triCorner2, triCorner3])
     } else if (!isInTriangle && !this.dragging.triangle || this.dragging.circle) {
       this.dragCircle(e, center, mouse)
     }
@@ -103,26 +113,76 @@ export class Ng2ColorPickerComponent implements OnInit {
     this.color.h = angle
   }
 
-  dragTriangle(e: MouseEvent, center, mouse) {
+  dragTriangle(e: MouseEvent, center, mouse, isInside, triangle: Vector[]) {
     if (this.enable) {
       this.dragging.triangle = true
     }
 
-    const orientation = new Vector(110, 0).rotateDeg(this.color.h - 90 - 120)
-    const val = orientation.rotateDeg(-120).plus(center)
-    const sat = orientation.plus(center)
-    const valDist = val.distTo(mouse)
-    const satDist = sat.distTo(mouse)
+    if (!isInside) {
+      // we have to find the closest point on in the triangle
+      mouse = this.getClosestPointOnTriangle(mouse, triangle[0], triangle[1], triangle[2])
+    }
 
-    this.color.v = (valDist / 192 * 100)
-    this.color.s = (satDist / 192 * 100)
+    const saturationOne = new Vector(110, 0).rotateDeg(this.color.h - 90)
+    const saturationZero = saturationOne.plus(new Vector(110, 0).rotateDeg(this.color.h + 90).times(1.5))
+    const saturationLine = [saturationOne.plus(center), saturationZero.plus(center)]
+    const saturation = this.getClosestPointOnLine(mouse, saturationLine[0], saturationLine[1]).distTo(saturationLine[1]) / 165
+    this.color.s = saturation * 100
+
+    const lightnessOne = new Vector(110, 0).rotateDeg(this.color.h - 90 - 120)
+    const lightnessZero = new Vector(110, 0).rotateDeg(this.color.h - 90 + 120)
+    const lightnessLine = [lightnessOne.plus(center), lightnessZero.plus(center)]
+    const lightness = this.getClosestPointOnLine(mouse, lightnessLine[0], lightnessLine[1]).distTo(lightnessLine[1]) / lightnessLine[0].distTo(lightnessLine[1])
+    this.color.l = lightness * 100
+  }
+
+  private getClosestPointOnTriangle(p: Vector, p1: Vector, p2: Vector, p3: Vector): Vector {
+    const l1 = this.getClosestPointOnLine(p, p1, p2)
+    const l2 = this.getClosestPointOnLine(p, p2, p3)
+    const l3 = this.getClosestPointOnLine(p, p3, p1)
+
+    const vecs = [l1, l2, l3]
+    let min: Vector
+    let minDist: number
+    vecs.forEach(v => {
+      const d = v.distTo(p)
+      if (d < minDist || !min) {
+        min = v
+        minDist = d
+      }
+    })
+
+    return min
+  }
+
+  private getClosestPointOnLine(p: Vector, a: Vector, b: Vector): Vector {
+    const AP = p.minus(a)
+    const AB = b.minus(a)
+    const AB2 = AB.x ** 2 + AB.y ** 2
+    const APdotAB = AP.dot(AB)
+    const t = APdotAB / AB2
+    if (t < 0) {
+      return a
+    } else if (t > 1) {
+      return b
+    } else {
+      return new Vector(a.x + AB.x * t, a.y + AB.y * t)
+    }
   }
 
   get hueColor(): Color {
-    return Color.fromHSV(this.color.h, 100, 100)
+    return Color.fromHSL(this.color.h, 100, 50)
   }
 
   get transform(): string {
     return `rotate(${ this.color.h - 90 }deg)`
+  }
+
+  get pointY() {
+    return 170 - this.color.l * 1.4
+  }
+
+  get pointX() {
+    return 60 + this.color.s * 1.2
   }
 }

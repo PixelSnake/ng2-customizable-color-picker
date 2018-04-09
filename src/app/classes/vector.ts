@@ -15,6 +15,23 @@ export class Vector {
     return new Vector(this.x - v.x, this.y - v.y)
   }
 
+  public dot(v: Vector): number {
+    return this.x * v.x + this.y * v.y
+  }
+
+  public times(n: number): Vector {
+    return new Vector(this.x * n, this.y * n)
+  }
+
+  public abs(): Vector {
+    const len = this.len()
+    return new Vector(this.x / len, this.y / len)
+  }
+
+  public len(): number {
+    return Math.sqrt(this.x ** 2 + this.y ** 2)
+  }
+
   public angleDeg(v: Vector): number {
     return Math.atan2(v.y - this.y, v.x - this.x) * 180 / Math.PI
   }
