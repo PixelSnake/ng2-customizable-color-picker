@@ -1,12 +1,19 @@
-import { Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core'
+import { Component, ElementRef, forwardRef, HostListener, Input, OnInit, ViewChild } from '@angular/core'
 import { Color } from './classes/color'
 import { Vector } from './classes/vector'
-import { ControlValueAccessor } from '@angular/forms'
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
+
+export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => Ng2ColorPickerComponent),
+  multi: true
+}
 
 @Component({
   selector: 'cp-ng2-color-picker',
   templateUrl: './ng2-color-picker.component.html',
-  styleUrls: ['./ng2-color-picker.component.scss']
+  styleUrls: ['./ng2-color-picker.component.scss'],
+  providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR]
 })
 export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
 
@@ -31,11 +38,13 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
   onTouch = () => {}
 
   constructor() {
-
   }
 
   ngOnInit() {
-    this.color = Color.fromHSL(90, 100, 50)
+    console.log('init', this.color)
+    if (!this.color) {
+      this.color = Color.fromHSL(0, 0, 0)
+    }
   }
 
   enableDrag(e: MouseEvent) {
@@ -200,14 +209,38 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
     this.disabled = isDisabled
   }
 
+  assertColor(color: Color): boolean {
+    const tolerance = .01
+    return color.l >= color.s / 100 * 50 - tolerance && color.l <= 100 - color.s / 100 * 50 + tolerance
+  }
+
+  alignColor(color: Color): Color {
+    const tolerance = 4
+    const s = color.s
+    const l = color.l
+
+    const d = l < 50 ? (s - l) / 2 + tolerance : (l - (1 - s)) / 2 - tolerance
+    console.log(color, d)
+    return Color.fromHSL(color.h, color.s + d, color.l + d)
+  }
+
   writeValue(obj: any): void {
-    console.log(typeof obj)
+    if (!obj) {
+      this.color = Color.fromHSL(0, 0, 0)
+      return
+    }
+
     switch (typeof obj) {
       case 'string':
         break
 
       case 'object':
-        console.log('color')
+        if (!this.assertColor(obj)) {
+          obj = this.alignColor(obj)
+          this.onChange(obj)
+        }
+
+        this.color = obj
         break
     }
   }

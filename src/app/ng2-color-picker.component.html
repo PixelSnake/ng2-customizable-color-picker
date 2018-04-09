@@ -1,8 +1,9 @@
+<p>{{ assertColor(color) }}</p>
+
 <div class="pickerContainer">
   <div #wheel class="wheel">
     <div class="mouseListener svgAbsolute" [class.maximized]="dragging.any" (mousedown)="enableDrag($event)" (mouseup)="disableDrag()" (mousemove)="drag($event)"></div>
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="-10 -10 220 220">
-      <ellipse *ngFor="let p of debugPoints" [attr.cx]="p.x" [attr.cy]="p.y" fill="white" rx="5" ry="5" stroke="black"></ellipse>
       <defs>
         <linearGradient id="redyel" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#ff0000"/>
