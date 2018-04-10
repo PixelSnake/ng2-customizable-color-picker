@@ -11,6 +11,6 @@ import { Color } from './classes/color'
   `
 })
 export class AppRootComponent {
-  color: Color = Color.fromHSL(123, 46, 13)
-  color2: Color = Color.fromHSL(123, 46, 13)
+  color: Color = Color.fromHSL(123, 70, 80)
+  color2: Color = Color.fromHSL(90, 70, 80)
 }

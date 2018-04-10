@@ -1,4 +1,5 @@
 import * as hsv2rgb from 'hsv-rgb'
+import * as rgb2hsl from 'rgb-to-hsl'
 
 export interface RGBColor {
   r: number
@@ -12,7 +13,8 @@ export class Color {
   private _l: number
 
   static fromRGB(r: number, g: number, b: number): Color {
-    return null
+    const hsl = rgb2hsl(r, g, b)
+    return new Color(hsl[0], parseFloat(hsl[1].replace('%', '')), parseFloat(hsl[2].replace('%', '')))
   }
 
   static fromHSL(h: number, s: number, l: number): Color {

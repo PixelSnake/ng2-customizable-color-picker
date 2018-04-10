@@ -34,8 +34,10 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  onChange = (val: Color) => { }
-  onTouch = () => {}
+  onChange = (val: Color) => {
+  }
+  onTouch = () => {
+  }
 
   constructor() {
   }
@@ -136,15 +138,24 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
       mouse = this.getClosestPointOnTriangle(mouse, triangle[0], triangle[1], triangle[2])
     }
 
-    const saturationOne = triangle[0]
-    const saturationZero = triangle[1].plus(triangle[2].minus(triangle[1]).times(.5))
-    const saturation = this.getClosestPointOnLine(mouse, saturationOne, saturationZero).distTo(saturationZero) / saturationOne.distTo(saturationZero)
-    this.color.s = saturation * 100
-
     const lightnessOne = triangle[1]
     const lightnessZero = triangle[2]
     const lightness = this.getClosestPointOnLine(mouse, lightnessOne, lightnessZero).distTo(lightnessZero) / lightnessOne.distTo(lightnessZero)
     this.color.l = lightness * 100
+
+    const saturationOne = triangle[0]
+    const saturationZero = triangle[1].plus(triangle[2].minus(triangle[1]).times(.5))
+    let saturation = this.getClosestPointOnLine(mouse, saturationOne, saturationZero).distTo(saturationZero) / saturationOne.distTo(saturationZero)
+
+    if (lightness !== 0 && lightness !== 1) {
+      if (lightness < .5) {
+        saturation *= .5 / lightness
+      } else {
+        saturation *= .5 / (1 - lightness)
+      }
+    }
+
+    this.color.s = saturation * 100
   }
 
   private getClosestPointOnTriangle(p: Vector, p1: Vector, p2: Vector, p3: Vector): Vector {
@@ -194,7 +205,8 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
   }
 
   get pointX() {
-    return 60 + this.color.s * 1.2
+    const f = this.color.l < 50 ? this.color.l / 50 : (100 - this.color.l) / 50
+    return 60 + this.color.s * 1.2 * f
   }
 
   registerOnChange(fn: any): void {
@@ -209,21 +221,6 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
     this.disabled = isDisabled
   }
 
-  assertColor(color: Color): boolean {
-    const tolerance = .01
-    return color.l >= color.s / 100 * 50 - tolerance && color.l <= 100 - color.s / 100 * 50 + tolerance
-  }
-
-  alignColor(color: Color): Color {
-    const tolerance = 4
-    const s = color.s
-    const l = color.l
-
-    const d = l < 50 ? (s - l) / 2 + tolerance : (l - (1 - s)) / 2 - tolerance
-    console.log(color, d)
-    return Color.fromHSL(color.h, color.s + d, color.l + d)
-  }
-
   writeValue(obj: any): void {
     if (!obj) {
       this.color = Color.fromHSL(0, 0, 0)
@@ -235,11 +232,6 @@ export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
         break
 
       case 'object':
-        if (!this.assertColor(obj)) {
-          obj = this.alignColor(obj)
-          this.onChange(obj)
-        }
-
         this.color = obj
         break
     }

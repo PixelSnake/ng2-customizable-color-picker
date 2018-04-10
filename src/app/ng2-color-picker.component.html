@@ -1,5 +1,3 @@
-<p>{{ assertColor(color) }}</p>
-
 <div class="pickerContainer">
   <div #wheel class="wheel">
     <div class="mouseListener svgAbsolute" [class.maximized]="dragging.any" (mousedown)="enableDrag($event)" (mouseup)="disableDrag()" (mousemove)="drag($event)"></div>
@@ -70,7 +68,7 @@
         <stop offset="0%" stop-color="#fff"></stop>
         <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"></stop>
       </radialGradient>
-      <ellipse fill="url(#g2)" clip-path="url(#mask)" ry="120" rx="120" cy="170" cx="60"></ellipse>
+      <ellipse fill="url(#g2)" clip-path="url(#mask)" ry="180" rx="180" cy="170" cx="60"></ellipse>
       <ellipse fill="url(#g1)" clip-path="url(#mask)" ry="120" rx="120" cy="100" cx="180"></ellipse>
       <ellipse fill="url(#g3)" clip-path="url(#mask)" ry="120" rx="120" cy="30" cx="60"></ellipse>
 
