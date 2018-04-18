@@ -11,8 +11,8 @@ export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
 
 @Component({
   selector: 'cp-ng2-color-picker',
-  templateUrl: './ng2-color-picker.component.html',
-  styleUrls: ['./ng2-color-picker.component.scss'],
+  templateUrl: './hsl-color-picker.component.html',
+  styleUrls: ['./hsl-color-picker.component.scss'],
   providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR]
 })
 export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {

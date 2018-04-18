@@ -1,5 +1,5 @@
 import { TestBed, async } from '@angular/core/testing';
-import { Ng2ColorPickerComponent } from './ng2-color-picker.component';
+import { Ng2ColorPickerComponent } from './hsl-color-picker.component';
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
