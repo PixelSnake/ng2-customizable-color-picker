@@ -5,17 +5,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 
 export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => Ng2ColorPickerComponent),
+  useExisting: forwardRef(() => HSLColorPickerComponent),
   multi: true
 }
 
 @Component({
-  selector: 'cp-ng2-color-picker',
+  selector: 'hsl-color-picker',
   templateUrl: './hsl-color-picker.component.html',
   styleUrls: ['./hsl-color-picker.component.scss'],
   providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR]
 })
-export class Ng2ColorPickerComponent implements OnInit, ControlValueAccessor {
+export class HSLColorPickerComponent implements OnInit, ControlValueAccessor {
 
   @Input() unselectedCaretSize = 3
   @Input() selectedCaretSize = 6
